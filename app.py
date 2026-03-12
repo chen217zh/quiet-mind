@@ -43,7 +43,7 @@ st.markdown(
     .block-container {
         max-width: 720px;
         padding-top: 1rem;
-        padding-bottom: 7rem;
+        padding-bottom: 5rem;
     }
     html, body, [class*="css"], p, div, span, label, li, input, textarea, select {
         color: var(--text) !important;
@@ -90,11 +90,6 @@ st.markdown(
         color: var(--muted);
         margin: 0;
     }
-    .qm-top-actions {
-        display:flex;
-        gap:8px;
-        margin-bottom: 10px;
-    }
     .qm-alert {
         background: var(--safe);
         border: 1px solid #f0cccc;
@@ -120,9 +115,9 @@ st.markdown(
     .qm-yellow { background: var(--yellow-bg); color: var(--yellow-text) !important; border: 1px solid #ecd59b; }
     .qm-orange { background: var(--orange-bg); color: var(--orange-text) !important; border: 1px solid #eac29c; }
     .qm-red { background: var(--red-bg); color: var(--red-text) !important; border: 1px solid #efc5c5; }
-    .qm-grid-note {
-        color: var(--muted);
-        font-size: 14px !important;
+    .qm-nav-sep {
+        margin-top: 16px;
+        margin-bottom: 10px;
     }
     .stButton > button, .stDownloadButton > button, .stLinkButton > a {
         width: 100%;
@@ -130,8 +125,13 @@ st.markdown(
         border-radius: 16px;
         border: 1px solid var(--line);
         font-weight: 700;
-        background: #fff;
+        background: #fff !important;
         color: var(--text) !important;
+    }
+    .stButton > button:hover, .stDownloadButton > button:hover, .stLinkButton > a:hover {
+        border-color: #c8d0d7 !important;
+        color: var(--text) !important;
+        background: #fcfcfc !important;
     }
     .stTextInput input, .stNumberInput input, .stTextArea textarea, div[data-baseweb="select"] {
         background: #ffffff !important;
@@ -141,39 +141,6 @@ st.markdown(
     .stRadio label, .stSelectbox label, .stCheckbox label, .stSlider label {
         font-weight: 600 !important;
         color: var(--text) !important;
-    }
-    .qm-footer-nav {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 999;
-        background: rgba(255,255,255,0.96);
-        backdrop-filter: blur(10px);
-        border-top: 1px solid var(--line);
-        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
-    }
-    .qm-footer-wrap {
-        max-width: 720px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
-    }
-    .qm-nav-link {
-        text-decoration: none;
-        text-align: center;
-        color: var(--muted) !important;
-        background: #fff;
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 8px 4px;
-        font-size: 12px !important;
-    }
-    .qm-nav-cta {
-        background: var(--soft);
-        color: var(--text) !important;
-        font-weight: 700;
     }
     </style>
     """,
@@ -472,7 +439,7 @@ def app_header(title=None, logged=False, subtitle=None):
                 st.rerun()
         with b:
             st.markdown(
-                "<a href='https://www.google.com' target='_self' class='qm-nav-link' style='display:block;padding:11px 4px;'>快速離開</a>",
+                "<a href='https://www.google.com' target='_self' style='display:block;text-align:center;text-decoration:none;background:#fff;border:1px solid #dde3e8;border-radius:16px;padding:12px 4px;color:#182028 !important;font-weight:700;'>快速離開</a>",
                 unsafe_allow_html=True,
             )
     if title:
@@ -486,27 +453,36 @@ def app_header(title=None, logged=False, subtitle=None):
 def footer_nav():
     if not st.session_state.auth_user_id:
         return
-    st.markdown(
-        """
-        <div class="qm-footer-nav">
-          <div class="qm-footer-wrap">
-            <a class="qm-nav-link" href="?nav=dashboard">首頁</a>
-            <a class="qm-nav-link qm-nav-cta" href="?nav=checkin">校準</a>
-            <a class="qm-nav-link" href="?nav=weekly_review">回顧</a>
-            <a class="qm-nav-link" href="?nav=decision_check">決策</a>
-            <a class="qm-nav-link" href="?nav=settings">我的</a>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
+    st.markdown("<div class='qm-nav-sep'></div>", unsafe_allow_html=True)
+    st.divider()
 
-def handle_query_nav():
-    nav = st.query_params.get("nav")
-    if nav:
-        st.session_state.route = nav
-        st.query_params.clear()
+    c1, c2, c3, c4, c5 = st.columns(5)
+
+    with c1:
+        if st.button("首頁", key=f"nav_dashboard_{st.session_state.route}"):
+            go("dashboard")
+            st.rerun()
+
+    with c2:
+        if st.button("校準", key=f"nav_checkin_{st.session_state.route}"):
+            go("checkin")
+            st.rerun()
+
+    with c3:
+        if st.button("回顧", key=f"nav_weekly_{st.session_state.route}"):
+            go("weekly_review")
+            st.rerun()
+
+    with c4:
+        if st.button("決策", key=f"nav_decision_{st.session_state.route}"):
+            go("decision_check")
+            st.rerun()
+
+    with c5:
+        if st.button("我的", key=f"nav_settings_{st.session_state.route}"):
+            go("settings")
+            st.rerun()
 
 
 def checkin_result(calm, stress, clarity, focus):
@@ -570,7 +546,7 @@ def onboarding_complete(uid: int) -> bool:
     return all(k in data for k in required)
 
 
-def mood_message(last_result: str | None):
+def mood_message(last_result):
     mapping = {
         None: "先做一次 30 秒校準。",
         "穩定": "你今天狀態相對穩，可以照原計畫走。",
@@ -866,6 +842,7 @@ def page_dashboard():
     if not onboarding_complete(uid):
         go("onboarding")
         st.rerun()
+
     app_header("Dashboard", logged=True, subtitle="今天只看必要的資訊")
     profile = get_profile(uid)
     prefs = profile["prefs"] or {}
@@ -877,6 +854,7 @@ def page_dashboard():
         f"<div class='qm-card'><strong>今天的問候</strong><p>{mood_message(latest_result)}</p></div>",
         unsafe_allow_html=True,
     )
+
     c1, c2 = st.columns(2)
     with c1:
         if st.button("30 秒校準"):
@@ -919,6 +897,7 @@ def page_dashboard():
         if st.button("我的報告"):
             go("reports")
             st.rerun()
+
     footer_nav()
 
 
@@ -1075,7 +1054,10 @@ def page_weekly_review():
         )
         st.markdown("<div class='qm-card'><strong>檢查答案</strong><p>確認後再完成本週回顧。</p></div>", unsafe_allow_html=True)
         if review.get("overview"):
-            st.markdown(f"<div class='qm-card'><p>本週整體穩定度：{review['overview']['stability']}/5</p><p>最常見情緒：{review['overview']['emotion']}</p><p>最容易失衡時段：{review['overview']['unstable_time']}</p></div>", unsafe_allow_html=True)
+            st.markdown(
+                f"<div class='qm-card'><p>本週整體穩定度：{review['overview']['stability']}/5</p><p>最常見情緒：{review['overview']['emotion']}</p><p>最容易失衡時段：{review['overview']['unstable_time']}</p></div>",
+                unsafe_allow_html=True,
+            )
         c1, c2 = st.columns(2)
         with c1:
             if st.button("上一步", key="wr4_back"):
@@ -1098,6 +1080,7 @@ def page_reports():
     uid = st.session_state.auth_user_id
     checkins = get_last_checkins(uid, 20)
     weeklies = get_last_weeklies(uid, 12)
+
     st.subheader("趨勢摘要")
     if not checkins.empty:
         chart_df = checkins.copy()
@@ -1114,6 +1097,7 @@ def page_reports():
     else:
         for _, row in weeklies.iterrows():
             st.markdown(f"<div class='qm-card'><strong>{row['created_at'][:10]}</strong><p>{row['summary']}</p></div>", unsafe_allow_html=True)
+
     footer_nav()
 
 
@@ -1139,11 +1123,13 @@ def page_resources():
         st.link_button("撥打 1925", "tel:1925")
     with c2:
         st.link_button("撥打 1995", "tel:1995")
+
     city = st.selectbox("縣市", ["不限", "台北市", "新北市", "桃園市", "台中市", "台南市", "高雄市", "其他"])
     mode = st.selectbox("線上 / 實體", ["不限", "線上", "實體"])
     subsidy = st.selectbox("補助", ["不限", "可補助", "自費"])
     service_type = st.selectbox("服務類型", ["一般諮詢", "壓力調適", "睡眠", "情緒支持"])
     st.caption(f"目前篩選：{city} / {mode} / {subsidy} / {service_type}")
+
     resources = [
         ("青壯心理健康支持方案", "適合先找補助與基本資源的人。"),
         ("社區心理衛生中心", "適合需要地方性支持與轉介資訊。"),
@@ -1152,6 +1138,7 @@ def page_resources():
     ]
     for title, text in resources:
         st.markdown(f"<div class='qm-card'><strong>{title}</strong><p>{text}</p></div>", unsafe_allow_html=True)
+
     footer_nav()
 
 
@@ -1181,17 +1168,38 @@ def page_settings():
     uid = st.session_state.auth_user_id
     profile = get_profile(uid)
     app_header("我的設定", logged=True)
+
     with st.form("settings_form"):
         name = st.text_input("稱呼", value=profile["name"])
         age = st.number_input("年齡", min_value=18, max_value=120, value=int(profile["age"] or 18))
-        reminder_day = st.selectbox("回顧提醒日", ["週一", "週二", "週三", "週四", "週五", "週六", "週日"], index=["週一", "週二", "週三", "週四", "週五", "週六", "週日"].index(profile["prefs"].get("reminder_day", "週日")))
-        summary_style = st.radio("摘要偏好", ["文字摘要", "圖表", "都可以"], index=["文字摘要", "圖表", "都可以"].index(profile["prefs"].get("summary_style", "文字摘要")))
-        focus_time = st.selectbox("高專注時段", ["清晨", "上午", "下午", "晚上", "不固定"], index=["清晨", "上午", "下午", "晚上", "不固定"].index(profile["prefs"].get("focus_time", "上午")))
+        reminder_day = st.selectbox(
+            "回顧提醒日",
+            ["週一", "週二", "週三", "週四", "週五", "週六", "週日"],
+            index=["週一", "週二", "週三", "週四", "週五", "週六", "週日"].index(profile["prefs"].get("reminder_day", "週日")),
+        )
+        summary_style = st.radio(
+            "摘要偏好",
+            ["文字摘要", "圖表", "都可以"],
+            index=["文字摘要", "圖表", "都可以"].index(profile["prefs"].get("summary_style", "文字摘要")),
+        )
+        focus_time = st.selectbox(
+            "高專注時段",
+            ["清晨", "上午", "下午", "晚上", "不固定"],
+            index=["清晨", "上午", "下午", "晚上", "不固定"].index(profile["prefs"].get("focus_time", "上午")),
+        )
         ok = st.form_submit_button("更新設定")
+
     if ok:
-        save_profile(uid, name=name, age=int(age), prefs={"reminder_day": reminder_day, "summary_style": summary_style, "focus_time": focus_time})
+        save_profile(
+            uid,
+            name=name,
+            age=int(age),
+            prefs={"reminder_day": reminder_day, "summary_style": summary_style, "focus_time": focus_time},
+        )
         st.success("設定已更新。")
+
     st.download_button("下載我的資料（JSON）", export_user_data(uid), file_name="quietmind_export.json", mime="application/json")
+
     danger = st.checkbox("我知道刪除後無法復原")
     if st.button("刪除我的帳號與所有資料"):
         if not danger:
@@ -1201,6 +1209,7 @@ def page_settings():
             st.session_state.auth_user_id = None
             go("home")
             st.rerun()
+
     footer_nav()
 
 
@@ -1216,7 +1225,6 @@ def page_404():
         st.rerun()
 
 
-handle_query_nav()
 routes = {
     "home": page_home,
     "suitability": page_suitability,
@@ -1236,4 +1244,5 @@ routes = {
     "settings": page_settings,
     "error": page_error,
 }
+
 routes.get(st.session_state.route, page_404)()
