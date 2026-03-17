@@ -1296,8 +1296,8 @@ def page_dashboard():
 
     c3, c4 = st.columns(2)
     with c3:
-        if st.button("查看每週回顧"):
-            go("weekly_review")
+        if st.button("查看週報"):
+            go("reports")
             st.rerun()
     with c4:
         if st.button("進入 Support"):
